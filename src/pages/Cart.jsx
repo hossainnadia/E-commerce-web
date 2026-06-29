@@ -4,10 +4,10 @@ import { Link } from "react-router-dom";
 import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft, CreditCard } from "lucide-react";
 
 const Cart = () => {
-    // আপনার CartContext থেকে সব প্রয়োজনীয় ডাটা ও ফাংশন রিসিভ করা হলো
+    // Receiving all necessary data and functions from your CartContext
     const { cart, updateQuantity, removeFromCart, totalPrice, totalItems } = useCart();
 
-    // কার্ট যদি খালি থাকে তবে এই চমৎকার UI-টি দেখাবে
+    // If the cart is empty, this clean UI will be shown
     if (cart.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center py-24 text-center space-y-6 max-w-md mx-auto">
@@ -42,7 +42,7 @@ const Cart = () => {
             {/* ─── MAIN CART LAYOUT ─── */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 items-start">
 
-                {/* 1. LEFT SIDE: CARTS ITEM LIST (2 Columns on large screens) */}
+                {/* 1. LEFT SIDE: CARTS ITEM LIST */}
                 <div className="lg:col-span-2 space-y-4">
                     {cart.map((item) => (
                         <div
@@ -59,7 +59,10 @@ const Cart = () => {
                                         {item.title}
                                     </h3>
                                     <p className="text-xs font-semibold text-slate-400 capitalize">{item.category}</p>
-                                    <p className="text-sm font-black text-slate-900 sm:hidden">${item.price}</p>
+                                    {/* Mobile View Price (Multiplied by 120) */}
+                                    <p className="text-sm font-black text-slate-900 sm:hidden">
+                                        Tk {Math.round(item.price * 120).toLocaleString()}
+                                    </p>
                                 </div>
                             </div>
 
@@ -85,10 +88,11 @@ const Cart = () => {
                                     </button>
                                 </div>
 
-                                {/* Total Price for this item */}
+                                {/* Single Item Total Price (Multiplied by 120) */}
                                 <div className="text-right hidden sm:block min-w-[80px]">
-                                    <p className="text-base font-black text-slate-900">${(item.price * item.quantity).toFixed(2)}</p>
-
+                                    <p className="text-base font-black text-slate-900">
+                                        Tk {Math.round(item.price * item.quantity * 120).toLocaleString()}
+                                    </p>
                                 </div>
 
                                 {/* Delete Button */}
@@ -104,15 +108,18 @@ const Cart = () => {
                     ))}
                 </div>
 
-                {/* 2. RIGHT SIDE: ORDER SUMMARY CARD (1 Column) */}
+                {/* 2. RIGHT SIDE: ORDER SUMMARY CARD */}
                 <div className="bg-slate-50 border border-slate-100 rounded-3xl p-6 space-y-6 shadow-sm lg:sticky lg:top-6">
                     <h3 className="text-lg font-black text-slate-900 tracking-tight">Order Summary</h3>
 
                     {/* Calculations */}
                     <div className="space-y-3 border-b border-slate-200 pb-4 text-sm font-medium text-slate-600">
                         <div className="flex justify-between">
-                            <span>Subtotal ({totalItems} items)</span>
-                            <span className="text-slate-900 font-bold">${totalPrice.toFixed(2)}</span>
+                            <span>Subtotal ({totalItems} {totalItems === 1 ? "item" : "items"})</span>
+                            {/* Total Price (Multiplied by 120) */}
+                            <span className="text-slate-900 font-bold">
+                                Tk {Math.round(totalPrice * 120).toLocaleString()}
+                            </span>
                         </div>
                         <div className="flex justify-between">
                             <span>Shipping Fees</span>
@@ -120,14 +127,17 @@ const Cart = () => {
                         </div>
                         <div className="flex justify-between">
                             <span>Estimated Tax</span>
-                            <span className="text-slate-900 font-bold">$0.00</span>
+                            <span className="text-slate-900 font-bold">Tk 0</span>
                         </div>
                     </div>
 
                     {/* Grand Total */}
                     <div className="flex justify-between items-baseline">
                         <span className="text-base font-bold text-slate-800">Total Amount</span>
-                        <span className="text-2xl font-black text-slate-900">${totalPrice.toFixed(2)}</span>
+                        {/* Final Grand Total (Multiplied by 120) */}
+                        <span className="text-2xl font-black text-slate-900">
+                            Tk {Math.round(totalPrice * 120).toLocaleString()}
+                        </span>
                     </div>
 
                     {/* Checkout Action Button */}
