@@ -34,11 +34,11 @@ function App() {
         {/* মেইন কন্টেইনার */}
         <main className="flex-grow w-full">
           <Routes>
-            {/*অথেন্টিকেশন পেজসমূহ (লগইন করা থাকলে এগুলো আর দেখা যাবে না, সরাসরি হোম পেজে পাঠাবে) */}
+            {/* অথেন্টিকেশন পেজসমূহ (লগইন করা থাকলে এগুলো আর দেখা যাবে না, সরাসরি হোম পেজে পাঠাবে) */}
             <Route path="/login" element={!user ? <Login /> : <Navigate to="/" replace />} />
             <Route path="/register" element={!user ? <Register /> : <Navigate to="/" replace />} />
 
-            {/*সব প্রাইভেট পেজ (হোম পেজসহ সবকিছু এখন প্রোটেক্টেড, লগইন ছাড়া অ্যাক্সেস নাই) */}
+            {/* সব প্রাইভেট পেজ (হোম পেজসহ সবকিছু এখন প্রোটেক্টড, লগইন ছাড়া অ্যাক্সেস নাই) */}
             <Route
               path="/"
               element={
@@ -87,16 +87,21 @@ function App() {
                 </PrivateRoute>
               }
             />
+
+            {/* ─── ড্যাশবোর্ড ও সাব-রাউট কনফিগারেশন ───
+              এখানে '/*' দেওয়ার কারণে ড্যাশবোর্ডের ভেতরের nested routes (orders, profile) পারফেক্টলি কাজ করবে।
+              ফুল-স্ক্রিন প্রিমিয়াম সাইডবার লেআউট বজায় রাখার জন্য এখান থেকে <PageLayout> সরানো হয়েছে।
+            */}
             <Route
-              path="/dashboard"
+              path="/dashboard/*"
               element={
                 <PrivateRoute>
-                  <PageLayout><Dashboard /></PageLayout>
+                  <Dashboard />
                 </PrivateRoute>
               }
             />
 
-            {/* ভুল কোনো ইউআরএল লিখলে লগইন স্ট্যাটাস অনুযায়ী রিডাইরেক্ট করবে */}
+            {/* ভুল কোনো ইউআরএল লিখলে লগইন স্ট্যাটাস অনুযায়ী রিডাইরেক্ট করবে */}
             <Route path="*" element={<Navigate to={user ? "/" : "/login"} replace />} />
           </Routes>
         </main>
