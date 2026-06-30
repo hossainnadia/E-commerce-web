@@ -24,19 +24,25 @@ const Login = () => {
         }
 
         try {
-            // ফায়ারবেস লগইন ফাংশন কল (এটি একটি প্রমিজ)
             await loginUser(email, password);
-
             setSuccess("Login Successful! Redirecting...");
             setTimeout(() => navigate("/"), 1500);
-
         } catch (err) {
-            console.error("Login Error:", err);
-            // ভুল ইমেইল বা পাসওয়ার্ডের এরর মেসেজ সুন্দরভাবে হ্যান্ডেল করা
-            if (err.code === "auth/invalid-credential" || err.code === "auth/wrong-password" || err.code === "auth/user-not-found") {
+            console.error("Caught Login Error in Component:", err);
+
+            // সেফলি স্ট্রিং কনভার্ট করা যাতে টাইপ এররের কারণে ক্যাচ ব্লক ক্র্যাশ না করে
+            const errCode = String(err?.code || "").toLowerCase();
+            const errMessage = String(err?.message || String(err)).toLowerCase();
+
+            // নিখুঁতভাবে কন্ডিশন চেক করা যেন ভুল ক্রেডেনশিয়াল হলে লাল বক্সটি দেখায়
+            if (
+                errCode.includes("invalid-credential") || errMessage.includes("invalid-credential") ||
+                errCode.includes("wrong-password") || errMessage.includes("wrong-password") ||
+                errCode.includes("user-not-found") || errMessage.includes("user-not-found")
+            ) {
                 setError("Invalid email or password. Please try again.");
             } else {
-                setError(err.message.replace("Firebase: ", ""));
+                setError("Authentication failed. Please try again.");
             }
         }
     };
@@ -47,24 +53,21 @@ const Login = () => {
         setSuccess("");
 
         try {
-            // গুগল পপআপ লগইন কল
             await loginWithGoogle();
-
             setSuccess("Google Login Successful!");
             setTimeout(() => navigate("/"), 1500);
-
         } catch (err) {
             console.error("Google Login Error:", err);
-            if (err.code === "auth/popup-closed-by-user") {
+            if (err?.code === "auth/popup-closed-by-user") {
                 setError("Login process was closed. Please try again.");
             } else {
-                setError(err.message.replace("Firebase: ", ""));
+                setError("Google login failed. Please try again.");
             }
         }
     };
 
     return (
-        <div className="min-h-[80vh] flex items-center justify-center px-4 bg-slate-25">
+        <div className="min-h-[80vh] flex items-center justify-center px-4 bg-slate-50">
             <div className="max-w-md w-full bg-white border border-slate-100 p-8 rounded-3xl shadow-xl shadow-slate-900/5 space-y-6">
 
                 {/* Header Section */}
@@ -73,15 +76,19 @@ const Login = () => {
                     <p className="text-slate-500 font-medium text-sm">Please enter your credentials to log in</p>
                 </div>
 
-                {/* Status Alert Messages */}
+                {/* 🚨 ডাইনামিক লাল এরর নোটিফিকেশন বক্স */}
                 {error && (
-                    <div className="bg-rose-50 text-rose-600 border border-rose-100 p-3.5 rounded-xl flex items-center gap-2 text-sm font-bold animate-shake">
-                        <AlertCircle className="w-4 h-4 shrink-0" /> <span>{error}</span>
+                    <div style={{ backgroundColor: '#fee2e2', color: '#dc2626', border: '1px solid #fecaca', padding: '16px', borderRadius: '12px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px' }}>
+                        <AlertCircle className="w-5 h-5 shrink-0 text-red-500" />
+                        <span>{error}</span>
                     </div>
                 )}
+
+                {/* 🎉 সাকসেস নোটিফিকেশন বক্স */}
                 {success && (
-                    <div className="bg-emerald-50 text-emerald-600 border border-emerald-100 p-3.5 rounded-xl flex items-center gap-2 text-sm font-bold">
-                        <CheckCircle className="w-4 h-4 shrink-0" /> <span>{success}</span>
+                    <div className="bg-emerald-50 text-emerald-700 border border-emerald-200 p-4 rounded-xl flex items-center gap-3 text-sm font-bold shadow-sm">
+                        <CheckCircle className="w-5 h-5 shrink-0 text-emerald-500" />
+                        <span>{success}</span>
                     </div>
                 )}
 
@@ -93,8 +100,10 @@ const Login = () => {
                             <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                             <input
                                 type="email"
+                                required
                                 placeholder="Your email"
                                 value={email}
+                                autoComplete="username"
                                 onChange={(e) => setEmail(e.target.value)}
                                 className="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 focus:border-violet-600 focus:bg-white rounded-xl text-sm font-semibold outline-none transition-all text-slate-800"
                             />
@@ -107,8 +116,10 @@ const Login = () => {
                             <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                             <input
                                 type="password"
+                                required
                                 placeholder="••••••••"
                                 value={password}
+                                autoComplete="current-password"
                                 onChange={(e) => setPassword(e.target.value)}
                                 className="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 focus:border-violet-600 focus:bg-white rounded-xl text-sm font-semibold outline-none transition-all text-slate-800"
                             />
@@ -136,7 +147,6 @@ const Login = () => {
                     onClick={handleGoogleLogin}
                     className="w-full py-3.5 border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-bold rounded-xl shadow-sm flex items-center justify-center gap-3 transition-all cursor-pointer"
                 >
-                    {/* Google Vector Icon */}
                     <svg className="w-5 h-5" viewBox="0 0 24 24">
                         <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
                         <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />

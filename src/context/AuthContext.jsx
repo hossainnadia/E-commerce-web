@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { auth } from "../firebase/firebase.config"; // তোমার ইমপোর্ট পাথ অনুযায়ী রাখা হলো
+import { auth } from "../firebase/firebase.config";
 import {
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
@@ -19,12 +19,12 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // ১. ইমেইল ও পাসওয়ার্ড দিয়ে একাউন্ট তৈরি এবং সাথে সাথে নাম আপডেট করা
+    // ১. ইমেইল ও পাসওয়ার্ড দিয়ে একাউนต์ তৈরি এবং সাথে সাথে নাম আপডেট করা
     const createUser = async (email, password, name) => {
         setLoading(true);
         try {
             const result = await createUserWithEmailAndPassword(auth, email, password);
-            // একাউন্ট তৈরি হওয়ার পর ইউজারের নাম ফায়ারবেসে সেট করা হচ্ছে
+            // একাউন্ট তৈরি হওয়ার পর ইউজারের নাম ফায়ারবেসে সেট করা হচ্ছে
             await updateProfile(result.user, {
                 displayName: name
             });
@@ -35,22 +35,39 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    // ২. ইমেইল ও পাসওয়ার্ড দিয়ে ট্র্যাডিশনাল লগইন
-    const loginUser = (email, password) => {
+    // ২. ইমেইল ও পাসওয়ার্ড দিয়ে ট্র্যাডিশনাল লগইন (নিরাপদ করা হলো)
+    const loginUser = async (email, password) => {
         setLoading(true);
-        return signInWithEmailAndPassword(auth, email, password);
+        try {
+            const result = await signInWithEmailAndPassword(auth, email, password);
+            return result;
+        } catch (error) {
+            setLoading(false);
+            throw error; // এররটি থ্রো করা হলো যাতে Login.jsx এর catch ব্লক এটি পায়
+        }
     };
 
-    // ৩. ফায়ারবেস পপআপের মাধ্যমে গুগল লগইন
-    const loginWithGoogle = () => {
+    // ৩. ফায়ারবেস পপআপের মাধ্যমে গুগল লগইন (নিরাপদ করা হলো)
+    const loginWithGoogle = async () => {
         setLoading(true);
-        return signInWithPopup(auth, googleProvider);
+        try {
+            const result = await signInWithPopup(auth, googleProvider);
+            return result;
+        } catch (error) {
+            setLoading(false);
+            throw error;
+        }
     };
 
     // ৪. সাইন আউট/লগআউট লজিক
-    const logoutUser = () => {
+    const logoutUser = async () => {
         setLoading(true);
-        return signOut(auth);
+        try {
+            return await signOut(auth);
+        } catch (error) {
+            setLoading(false);
+            throw error;
+        }
     };
 
     // ইউজারের লগইন স্টেট রিয়েল-টাইম ট্র্যাক করা
@@ -67,13 +84,13 @@ export const AuthProvider = ({ children }) => {
         loading,
         createUser,
         loginUser,
-        loginWithGoogle, // নববার এবং লগইন পেজের জন্য এক্সপোর্ট করা হলো
+        loginWithGoogle,
         logoutUser
     };
 
     return (
         <AuthContext.Provider value={authInfo}>
-            {!loading && children}
+            {children}
         </AuthContext.Provider>
     );
 };
