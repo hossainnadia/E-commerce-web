@@ -153,10 +153,10 @@ const ProductDetails = () => {
 
                     {/* PRICE SECTION IN TK */}
                     <div className="bg-slate-50 p-4 rounded-2xl flex items-center justify-between border border-slate-100">
-                        <div className="space-y-2">
+                        <div className="space-y-">
                             <p className="text-xl font-bold text-slate-400 tracking-wider">Total Price</p>
                             <div className="flex items-baseline gap-2">
-                                <span className="text-2xl font-black text-slate-900">Tk {priceInTk.toLocaleString('en-IN')}</span>
+                                <span className="text-ts font-black text-slate-900">Tk {priceInTk.toLocaleString('en-IN')}</span>
                                 {product.discountPercentage > 0 && (
                                     <span className="text-sm font-bold text-slate-400 line-through">Tk {originalPriceInTk.toLocaleString('en-IN')}</span>
                                 )}
@@ -164,7 +164,7 @@ const ProductDetails = () => {
                         </div>
                         {product.discountPercentage > 0 && (
                             <span className="bg-rose-50 text-rose-600 font-extrabold text-xs px-3 py-1.5 rounded-xl border border-rose-100">
-                                Save {product.discountPercentage}%
+                                Save {Math.round(product.discountPercentage)}% OFF
                             </span>
                         )}
                     </div>

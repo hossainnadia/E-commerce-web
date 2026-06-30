@@ -78,7 +78,7 @@ const Navbar = () => {
                     <Link to="/cart" className="relative p-2.5 text-slate-300 hover:text-violet-400 hover:bg-slate-800 rounded-xl transition">
                         <ShoppingCart className="w-5 h-5" />
                         {totalItems > 0 && (
-                            <span className="absolute top-1 right-1 bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-black shadow-lg shadow-violet-500/50">
+                            <span className="absolute top-0 right-0 bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-black shadow-lg shadow-violet-500/50">
                                 {totalItems}
                             </span>
                         )}

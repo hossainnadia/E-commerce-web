@@ -13,7 +13,7 @@ const Products = () => {
     const [sortBy, setSortBy] = useState("");
     const [notification, setNotification] = useState("");
 
-    // CartContext থেকে কার্ট এবং প্রয়োজনীয় ফাংশন রিসিভ করা হলো
+    // CartContext থেকে কার্ট এবং প্রয়োজনীয় ফাংশন রিসিভ করা হলো
     const { cart, addToCart, updateQuantity, removeFromCart } = useCart();
 
     // Fetch Categories and attach a sample product image for UI
@@ -45,31 +45,31 @@ const Products = () => {
     useEffect(() => {
         const url = selectedCategory
             ? `https://dummyjson.com/products/category/${selectedCategory}`
-            : "https://dummyjson.com/products?limit=30";
+            : "https://dummyjson.com/products?limit=40";
 
         fetch(url)
             .then((res) => res.json())
             .then((data) => setProducts(data.products));
     }, [selectedCategory]);
 
-    // কার্ট থেকে নির্দিষ্ট প্রোডাক্টের কোয়ান্টিটি চেক করার ফাংশন
+    // কার্ট থেকে নির্দিষ্ট প্রোডাক্টের কোয়ান্টিটি চেক করার ফাংশন
     const getProductQuantity = (productId) => {
         const cartItem = cart.find((item) => item.id === productId);
         return cartItem ? cartItem.quantity : 0;
     };
 
-    const handleDecreaseQuantity = (product) => {
-        const currentQty = getProductQuantity(product.id);
+    const handleDecreaseQuantity = (productId, productTitle) => {
+        const currentQty = getProductQuantity(productId);
         if (currentQty <= 1) {
-            removeFromCart(product.id);
-            setNotification(`${product.title} removed from cart! 🗑️`);
-            setTimeout(() => setNotification(""), 2000); // টাইমার ফিক্সড
+            removeFromCart(productId);
+            setNotification(`${productTitle} removed from cart! 🗑️`);
+            setTimeout(() => setNotification(""), 2000);
         } else {
-            updateQuantity(product.id, "dec");
+            updateQuantity(productId, "dec");
         }
     };
+
     const handleAddToCart = (product) => {
-        // যদি কার্টে অলরেডি না থাকে, তবেই অ্যাড হবে
         if (getProductQuantity(product.id) === 0) {
             addToCart(product);
             setNotification(`${product.title} added to cart! 🎉`);
@@ -100,10 +100,7 @@ const Products = () => {
             )}
 
             {/* ─── PAGE HEADER & SEARCH-FILTER BAR ─── */}
-
             <div className="flex flex-col md:flex-row md:items-center md:justify-between border-b border-slate-100 pb-8 pt-4 gap-4">
-                {/* ─── SEARCH BAR (বামে থাকবে এবং খালি জায়গাটুকু টেনে বড় হবে) ─── */}
-                {/* flex-grow যোগ করায় এটি ড্রপডাউনের বামের পুরো খালি স্পেস নিয়ে বড় হয়ে যাবে */}
                 <div className="relative w-full md:flex-grow max-w-2xl">
                     <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                     <input
@@ -115,8 +112,6 @@ const Products = () => {
                     />
                 </div>
 
-                {/* ─── PRICE SORT DROPDOWN (ডানে থাকবে এবং ফিক্সড সাইজ ধরে রাখবে) ─── */}
-                {/* md:w-52 এর কারণে বড় স্ক্রিনে এটি ডান কোণায় সুন্দর একটি নির্দিষ্ট সাইজে ফিক্সড থাকবে */}
                 <div className="relative w-full md:w-52 shrink-0">
                     <SlidersHorizontal className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                     <select
@@ -130,14 +125,13 @@ const Products = () => {
                     </select>
                 </div>
             </div>
+
             {/* ─── FULL WIDTH CATEGORIES SCROLLER ─── */}
             <div className="space-y-4 w-full overflow-hidden">
                 <h3 className="text-xl font-black uppercase tracking-widest text-slate-900 text-center mb-8 md:text-left">
                     Filter by Categories
                 </h3>
                 <div className="flex overflow-x-auto gap-4 pb-3 scrollbar-none snap-x w-full">
-
-                    {/* All Products Item */}
                     <button
                         onClick={() => setSelectedCategory("")}
                         className="group flex flex-col items-center gap-4 cursor-pointer focus:outline-none w-full snap-start"
@@ -150,7 +144,6 @@ const Products = () => {
                         </span>
                     </button>
 
-                    {/* Dynamic Category Items */}
                     {categories.map((cat) => (
                         <button
                             key={cat.slug}
@@ -178,7 +171,6 @@ const Products = () => {
                 Our Products
             </h1>
 
-
             <div>
                 {filteredAndSortedProducts.length === 0 ? (
                     <div className="text-center py-20 border border-dashed border-slate-200 rounded-3xl bg-slate-50">
@@ -192,11 +184,19 @@ const Products = () => {
                             return (
                                 <div
                                     key={product.id}
-                                    className="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group"
+                                    className="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group relative"
                                 >
                                     <div>
                                         {/* Product Image Section */}
                                         <div className="relative bg-slate-50 rounded-xl overflow-hidden mb-4 p-4 aspect-square flex items-center justify-center">
+
+                                            {/* 🎯 API থেকে আসা ডাইনামিক ডিসকাউন্ট পার্সেন্টেজ ব্যাজ */}
+                                            {product.discountPercentage && product.discountPercentage > 0 && (
+                                                <div className="absolute top-2.5 left-2.5 bg-rose-500 text-white text-[10px] font-black px-2.5 py-1 rounded-lg uppercase tracking-wider shadow-sm z-10 animate-pulse">
+                                                    {Math.round(product.discountPercentage)}% OFF
+                                                </div>
+                                            )}
+
                                             <img
                                                 src={product.thumbnail}
                                                 alt={product.title}
@@ -225,13 +225,10 @@ const Products = () => {
 
                                     {/* Price and Action Buttons */}
                                     <div className="mt-auto pt-3 flex items-center justify-between border-t border-slate-50 gap-2">
-                                        {/* $1 = 120 টাকা ধরে হিসাব করা হয়েছে */}
-                                        <span className="text-ts font-black text-slate-900">Tk {Math.round(product.price * 120)}</span>
+                                        <span className="text-base font-black text-slate-990">Tk {Math.round(product.price * 120)}</span>
 
                                         {/* ─── HOVER SLIDE IN/OUT ACTION BUTTON ─── */}
                                         <div className="relative w-32 h-10 overflow-hidden rounded-xl group/btn cursor-pointer shadow-sm hover:shadow-md transition-all duration-300">
-
-                                            {/* ডিফল্ট বাটন: কার্টে ডাটা না থাকলে "Add to Cart" দেখাবে, থাকলে কার্টের কারেন্ট কোয়ান্টিটি টেক্সট দেখাবে */}
                                             <button
                                                 onClick={() => handleAddToCart(product)}
                                                 className="absolute inset-0 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center justify-center transition-transform duration-300 group-hover/btn:-translate-y-full whitespace-nowrap"
@@ -239,17 +236,16 @@ const Products = () => {
                                                 {quantity > 0 ? `${quantity}` : "Add to Cart"}
                                             </button>
 
-                                            {/* হোভার করলে নিচ থেকে স্লাইড হয়ে আসা "-  +" কন্ট্রোলার */}
                                             <div
-                                                className="absolute inset-0  bg-slate-900 text-white flex items-center justify-between translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300"
+                                                className="absolute inset-0 bg-slate-900 text-white flex items-center justify-between translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300"
                                             >
                                                 <button
                                                     onClick={(e) => {
                                                         e.stopPropagation();
-                                                        handleDecreaseQuantity(product.id);
+                                                        handleDecreaseQuantity(product.id, product.title);
                                                     }}
-                                                    className="h-full px-3 transition-colors flex items-center  bg-slate-900 justify-center text-white"
-                                                    disabled={quantity === 0} // কার্ট খালি থাকলে ক্লিক লকড
+                                                    className="h-full px-3 transition-colors flex items-center bg-slate-900 justify-center text-white"
+                                                    disabled={quantity === 0}
                                                 >
                                                     <Minus className="w-3.5 h-3.5" />
                                                 </button>
@@ -261,7 +257,6 @@ const Products = () => {
                                                 <button
                                                     onClick={(e) => {
                                                         e.stopPropagation();
-                                                        // কার্টে না থাকলে প্রথমে অ্যাড করবে, থাকলে ১ বাড়াবে
                                                         if (quantity === 0) {
                                                             handleAddToCart(product);
                                                         } else {
@@ -273,8 +268,8 @@ const Products = () => {
                                                     <Plus className="w-3.5 h-3.5" />
                                                 </button>
                                             </div>
-
                                         </div>
+
                                     </div>
                                 </div>
                             );
@@ -282,7 +277,7 @@ const Products = () => {
                     </div>
                 )}
             </div>
-        </div >
+        </div>
     );
 };
 
