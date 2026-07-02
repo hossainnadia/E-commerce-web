@@ -21,7 +21,7 @@ const Products = () => {
         fetch("https://dummyjson.com/products/categories")
             .then((res) => res.json())
             .then(async (data) => {
-                const limitedCategories = data.slice(0, 6);
+                const limitedCategories = data.slice(0, 10);
 
                 const categoriesWithImages = await Promise.all(
                     limitedCategories.map(async (cat) => {
@@ -136,10 +136,10 @@ const Products = () => {
                         onClick={() => setSelectedCategory("")}
                         className="group flex flex-col items-center gap-4 cursor-pointer focus:outline-none w-full snap-start"
                     >
-                        <div className={`w-20 h-20 rounded-full flex items-center justify-center border transition-all duration-300 shadow-sm ${!selectedCategory ? 'border-violet-600 bg-violet-50 scale-105 shadow-violet-600/10' : 'border-slate-200 bg-slate-50 group-hover:border-slate-400'}`}>
-                            <ShoppingBag className={`w-7 h-7 ${!selectedCategory ? 'text-violet-600' : 'text-slate-500'}`} />
+                        <div className={`w-20 h-20 rounded-full flex items-center justify-center border transition-all duration-300 shadow-md ${!selectedCategory ? 'border-violet-600 bg-violet-50 scale-105 shadow-violet-600/10' : 'border-slate-200 bg-slate-50 group-hover:border-slate-400'}`}>
+                            <ShoppingBag className={`w-8 h-88 ${!selectedCategory ? 'text-violet-600' : 'text-slate-600'}`} />
                         </div>
-                        <span className={`text-xs font-bold tracking-wide transition-colors ${!selectedCategory ? 'text-violet-600 font-extrabold' : 'text-slate-600 group-hover:text-slate-900'}`}>
+                        <span className={`text-sm font-bold tracking-wide transition-colors ${!selectedCategory ? 'text-violet-600 font-extrabold' : 'text-slate-600 group-hover:text-slate-900'}`}>
                             All
                         </span>
                     </button>
@@ -150,7 +150,7 @@ const Products = () => {
                             onClick={() => setSelectedCategory(cat.slug)}
                             className="group flex flex-col items-center gap-4 cursor-pointer focus:outline-none w-full snap-start"
                         >
-                            <div className={`w-20 h-20 rounded-full overflow-hidden border transition-all duration-300 bg-white shadow-sm relative ${selectedCategory === cat.slug ? 'border-violet-600 scale-105 shadow-violet-600/20 ring-4 ring-violet-50' : 'border-slate-200 group-hover:border-slate-400 group-hover:scale-105'}`}>
+                            <div className={`w-20 h-20 rounded-full overflow-hidden border transition-all duration-300 bg-white shadow-md relative ${selectedCategory === cat.slug ? 'border-violet-600 scale-105 shadow-violet-600/20 ring-4 ring-violet-50' : 'border-slate-200 group-hover:border-slate-400 group-hover:scale-105'}`}>
                                 <img
                                     src={cat.image}
                                     alt={cat.name}
